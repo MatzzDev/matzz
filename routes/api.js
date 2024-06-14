@@ -1,16 +1,3 @@
-// Gada reupload" 😏
-// Klo mau colong fitur, jgn asal colong bodoh ntr api lu eror
-
-// Thanks to ( jgn di hapus jamet)
-/*
-- Loli Killers
-- Rynz
-- Eka Danuarta
-- ZeeoneOfc 
-- danzzcoding [database api] 
-- Creative Time [ For Template ]
-- Dan kalian semua yang memakai script api ini
-*/
 __path = process.cwd();
 
 require('../settings.js');
@@ -41,6 +28,7 @@ const {
     getBuffer
 } = require(__path + '/lib/functions.js');
 const oxy = require(__path + '/lib/oxy.js');
+const { ChatGpt } = required(__path + '/lib/scrape.js')
 
 router.get('/cekapikey', async (req, res, next) => {
     var apikey = req.query.apikey
@@ -1679,5 +1667,49 @@ router.get('/other/kbbi', async (req, res, next) => {
         })
     limitAdd(apikey);
 })
+router.get('/other/gpt', async (req, res, next) => {
+  try {
+    const apikey = req.query.apikey;
+    const query = req.query.q;
+
+    if (!apikey) {
+      return res.json(loghandler.noapikey);
+    }
+    
+    if (!query) {
+      return res.json({
+        status: false,
+        creator: `${creator}`,
+        message: "masukan parameter kata"
+      });
+    }
+
+    const check = await cekKey(apikey);
+    if (!check) {
+      return res.status(403).send({
+        status: 403,
+        message: `apikey ${apikey} not found, please register first! https://${req.hostname}/users/signup`,
+        result: "error"
+      });
+    }
+
+    const limit = await isLimit(apikey);
+    if (limit) {
+      return res.status(403).send({
+        status: 403,
+        message: 'your limit has been exhausted, reset every 12 PM'
+      });
+    }
+
+    const data = await ChatGpt(query);
+    return res.json({
+      status: true,
+      author: "Matzz",
+      result: data
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router
