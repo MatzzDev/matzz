@@ -1,0 +1,6 @@
+language = "nodejs"
+run = "npm install && npm start index.js"
+
+[[ports]]
+localPort = 8080
+externalPort = 80
